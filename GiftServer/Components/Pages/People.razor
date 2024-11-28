@@ -1,0 +1,49 @@
+@page "/people"
+@attribute [StreamRendering]
+@inject DataAccess data
+
+<PageTitle>People</PageTitle>
+
+<h1>People</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Birthday</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Name</td>
+                    <td>@forecast.Birthday</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Person[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        //var names = new[] { "Bradley", "Sharon", "Mom" };
+        //var birthdays = new[]{ "4/20/1995", "1/18/1991", "6/20/1968" };
+
+        forecasts = await data.GetMyPeople(Guid.Empty);
+    }
+}
