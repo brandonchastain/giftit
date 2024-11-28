@@ -19,6 +19,7 @@ else
             <tr>
                 <th>Name</th>
                 <th>Birthday</th>
+                <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
@@ -29,14 +30,43 @@ else
                         <a href="gifts/@person.Id">@person.Name</a>
                     </td>
                     <td>@person.Birthday</td>
+                    <td>&nbsp;</td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <form method="post" @onsubmit="SubmitAsync" @formname="starship-plain-form">
+    <AntiforgeryToken />
+        <div>
+            <InputText @bind-Value="NewPersonName" />
+            <InputText @bind-Value="NewPersonBirthday" />
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
 }
 
 @code {
     private Person[]? myPeople;
+
+    [SupplyParameterFromForm]
+    private string NewPersonName { get; set; } = string.Empty;
+    
+    [SupplyParameterFromForm]
+    private string NewPersonBirthday { get; set; } = string.Empty;
+
+    private async Task SubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewPersonName) ||
+            string.IsNullOrWhiteSpace(NewPersonBirthday))
+        {
+            throw new Exception("Invalid person data.");   
+        }
+
+        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday));
+    }
 
     protected override async Task OnInitializedAsync()
     {

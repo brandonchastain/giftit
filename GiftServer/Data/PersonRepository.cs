@@ -13,6 +13,16 @@ namespace GiftServer
             return ParseResults(result);
         }
 
+        public async Task AddNewPerson(string name, DateTime? birthday)
+        {
+            var query = "INSERT INTO People2 VALUES (?, ?, ?)";
+            var idStr = Guid.NewGuid().ToString();
+            var birthdayStr = birthday.ToString();
+
+            var parameters = new List<(string, object)>(){ ("text", idStr), ("text", name), ("text", birthdayStr) };
+            await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
+        }
+
         protected override Person ParseSingleResult(Column[] cols, Row[] row)
         {
             string name = string.Empty;

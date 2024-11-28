@@ -9,7 +9,8 @@ namespace GiftServer
 
         public async Task<Gift[]> GetGiftIdeasForPerson(Guid personId)
         {
-            var result = await DbClient.ExecuteQueryAsync("SELECT * FROM Gift3 WHERE personId = ?", new List<object>{ personId });
+            var parameters = new List<(string, object)>{ ("text", personId) };
+            var result = await DbClient.ExecuteQueryAsync("SELECT * FROM Gift3 WHERE personId = ?", parameters);
             return ParseResults(result);
         }
 

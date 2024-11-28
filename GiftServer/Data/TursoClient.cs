@@ -17,7 +17,7 @@ namespace GiftServer
                 new AuthenticationHeaderValue("Bearer", authToken);
         }
 
-        public async Task<IEnumerable<Result>> ExecuteQueryAsync(string sql, List<object> parameters = null)
+        public async Task<IEnumerable<Result>> ExecuteQueryAsync(string sql, List<(string, object)> parameters = null)
         {
             var request = new
             {
@@ -29,10 +29,11 @@ namespace GiftServer
                         stmt = new
                         {
                             sql = sql,
-                            args = (parameters ?? new List<object>()).Select(p =>
+                            args = (parameters ?? new List<(string, object)>()).Select(p =>
                                 new {
-                                    type = "text",
-                                    value = p
+                                    // "integer", "text"
+                                    type = p.Item1,
+                                    value = p.Item2
                                 }
                             )
                         }
