@@ -1,5 +1,6 @@
 namespace GiftServer
 {
+    using System.Diagnostics;
     using System.Net.Http.Headers;
     using System.Text.Json;
 
@@ -7,16 +8,16 @@ namespace GiftServer
     {
         private readonly HttpClient httpClient;
         private readonly string dbUrl;
-        private readonly string authToken;
 
         public TursoClient(string dbUrl, string authToken)
         {
-            httpClient = new HttpClient(); // TODO: use httpclientfactory
             this.dbUrl = dbUrl;
-            this.authToken = authToken;
+            httpClient = new HttpClient(); // TODO: use httpclientfactory
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", authToken);
         }
 
-        public async Task<IEnumerable<Result>> ExecuteQueryAsync<T>(string sql, List<object> parameters = null)
+        public async Task<IEnumerable<Result>> ExecuteQueryAsync(string sql, List<object> parameters = null)
         {
             var request = new
             {
@@ -28,26 +29,30 @@ namespace GiftServer
                         stmt = new
                         {
                             sql = sql,
-                            args = parameters ?? new List<object>()
+                            args = (parameters ?? new List<object>()).Select(p =>
+                                new {
+                                    type = "text",
+                                    value = p
+                                }
+                            )
                         }
                     }
                 }
             };
+
             var jsonString = JsonSerializer.Serialize(request);
-            Console.WriteLine(jsonString);
+            Debug.WriteLine(jsonString);
+
             var content = new StringContent(
                 jsonString,
                 System.Text.Encoding.UTF8,
                 "application/json");
 
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", authToken);
-
             var response = await httpClient.PostAsync($"{dbUrl}/v2/pipeline", content);
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
-            response.EnsureSuccessStatusCode();
-
             var jsonResponse = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine(jsonResponse);
+
+            response.EnsureSuccessStatusCode();
             var outerResponse = JsonSerializer.Deserialize<OuterResponse>(jsonResponse, new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true,
@@ -62,6 +67,7 @@ namespace GiftServer
         }
     }
 
+    // Records used for deserializing JSON response
     public record OuterResponse(List<Results> Results);
     public record Results(string Type, InnerResponse Response);
     public record InnerResponse(string Type, Result Result);

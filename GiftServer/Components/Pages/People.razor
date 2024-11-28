@@ -1,6 +1,6 @@
 @page "/people"
 @attribute [StreamRendering]
-@inject DataAccess data
+@inject PersonRepository repo
 
 <PageTitle>People</PageTitle>
 
@@ -8,7 +8,7 @@
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
+@if (myPeople == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -22,11 +22,13 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var person in myPeople)
             {
                 <tr>
-                    <td>@forecast.Name</td>
-                    <td>@forecast.Birthday</td>
+                    <td>
+                        <a href="gifts/@person.Id">@person.Name</a>
+                    </td>
+                    <td>@person.Birthday</td>
                 </tr>
             }
         </tbody>
@@ -34,16 +36,10 @@ else
 }
 
 @code {
-    private Person[]? forecasts;
+    private Person[]? myPeople;
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-
-        //var names = new[] { "Bradley", "Sharon", "Mom" };
-        //var birthdays = new[]{ "4/20/1995", "1/18/1991", "6/20/1968" };
-
-        forecasts = await data.GetMyPeople(Guid.Empty);
+        myPeople = await repo.GetMyPeople(Guid.Empty);
     }
 }

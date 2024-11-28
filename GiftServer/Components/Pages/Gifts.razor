@@ -1,0 +1,48 @@
+@page "/gifts/{personId}"
+@attribute [StreamRendering]
+@inject GiftRepository repo
+
+<PageTitle>Gifts</PageTitle>
+
+<h1>Gifts</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (gifts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Person Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var gift in gifts)
+            {
+                <tr>
+                    <td>@gift.Id</td>
+                    <td>@gift.Name</td>
+                    <td>@gift.PersonId</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    [Parameter]
+    public string PersonId { get; set; }
+    private Gift[]? gifts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        gifts = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
+    }
+}

@@ -13,7 +13,8 @@ var config = parser.ReadFile("appconfig.ini");
 var dbUrl = config["Turso"]["dbUrl"];
 var authToken = config["Turso"]["authToken"];
 
-builder.Services.AddSingleton<DataAccess>();
+builder.Services.AddSingleton<PersonRepository>();
+builder.Services.AddSingleton<GiftRepository>();
 builder.Services.AddSingleton((_) => new TursoClient(dbUrl, authToken));
 
 var app = builder.Build();
