@@ -23,6 +23,18 @@ namespace GiftServer
             await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
         }
 
+        public async Task DeletePerson(Guid id)
+        {
+            var query =
+            """
+            DELETE FROM People2
+            WHERE id = ?
+            """;
+            var idStr = id.ToString();
+            var parameters = new List<(string, object)>(){ ("text", idStr) };
+            await DbClient.ExecuteQueryAsync(query, parameters);
+        }
+
         protected override Person ParseSingleResult(Column[] cols, Row[] row)
         {
             string name = string.Empty;

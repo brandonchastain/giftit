@@ -1,6 +1,7 @@
 @page "/gifts/{personId}"
 @attribute [StreamRendering]
 @inject GiftRepository repo
+@inject NavigationManager navigationManager
 
 <PageTitle>Gifts</PageTitle>
 
@@ -17,22 +18,31 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
                 <th>Name</th>
-                <th>Person Id</th>
+                <th>Person</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var gift in gifts)
             {
                 <tr>
-                    <td>@gift.Id</td>
                     <td>@gift.Name</td>
-                    <td>@gift.PersonId</td>
+                    <td>@gift.PersonName</td>
+                    <td><a href="#" @onclick="async () => await DeleteAsync(gift.Id)" >Delete</a></td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <form method="post" @onsubmit="SubmitAsync" @formname="starship-plain-form">
+    <AntiforgeryToken />
+        <div>
+            <InputText @bind-Value="NewGiftName" />
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
 }
 
 @code {
@@ -41,8 +51,28 @@ else
     public string PersonId { get; set; }
     private Gift[]? gifts;
 
+    [SupplyParameterFromForm]
+    private string NewGiftName { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         gifts = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewGiftName))
+        {
+            throw new Exception("Invalid person data.");   
+        }
+
+        await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId));
+        navigationManager.NavigateTo($"gifts/{PersonId}");
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        await repo.DeleteGift(id);
+        navigationManager.NavigateTo($"gifts/{PersonId}");
     }
 }

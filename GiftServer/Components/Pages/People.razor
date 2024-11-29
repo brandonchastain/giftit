@@ -1,6 +1,7 @@
 @page "/people"
 @attribute [StreamRendering]
 @inject PersonRepository repo
+@inject NavigationManager navigationManager
 
 <PageTitle>People</PageTitle>
 
@@ -30,7 +31,7 @@ else
                         <a href="gifts/@person.Id">@person.Name</a>
                     </td>
                     <td>@person.Birthday</td>
-                    <td>&nbsp;</td>
+                    <td><a href="javascript:void()" @onclick="(async () => await DeleteAsync(person.Id))" @onclick:preventDefault>Delete</a></td>
                 </tr>
             }
         </tbody>
@@ -66,6 +67,13 @@ else
         }
 
         await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday));
+        navigationManager.NavigateTo("People");
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        await repo.DeletePerson(id);
+        navigationManager.NavigateTo("People");
     }
 
     protected override async Task OnInitializedAsync()
