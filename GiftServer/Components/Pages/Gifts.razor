@@ -63,9 +63,12 @@ else
     {
         this.NewGiftName = string.Empty;
         this.Link = string.Empty;
+
         var person = await personRepo.GetPerson(Guid.Parse(PersonId));
+        var giftIdeas = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
+        
         this.personName = person.Name; 
-        gifts = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
+        this.gifts = giftIdeas;
     }
 
     private async Task SubmitAsync()
