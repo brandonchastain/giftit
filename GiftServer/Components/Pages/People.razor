@@ -40,8 +40,8 @@ else
     <form method="post" @onsubmit="SubmitAsync" @formname="starship-plain-form">
     <AntiforgeryToken />
         <div>
-            <InputText @bind-Value="NewPersonName" />
-            <InputText @bind-Value="NewPersonBirthday" />
+            <InputText @bind-Value="NewPersonName" placeholder="Name" />
+            <InputText @bind-Value="NewPersonBirthday" placeholder="Birthday (MM/dd/YYYY)" />
         </div>
         <div>
             <button type="submit">Submit</button>
@@ -50,6 +50,7 @@ else
 }
 
 @code {
+    private static readonly Guid TempUserId = Guid.Parse("b56c8b89-433a-4f14-84c4-c5ec42f51366");
     private Person[]? myPeople;
 
     [SupplyParameterFromForm]
@@ -66,7 +67,7 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday));
+        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), TempUserId);
         await this.OnInitializedAsync();
     }
 
@@ -80,6 +81,6 @@ else
     {
         NewPersonName = string.Empty;
         NewPersonBirthday = string.Empty;
-        myPeople = await repo.GetMyPeople(Guid.Empty);
+        myPeople = await repo.GetMyPeople(TempUserId);
     }
 }

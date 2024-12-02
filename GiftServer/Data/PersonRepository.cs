@@ -1,7 +1,7 @@
 namespace GiftServer
 {
     public class PersonRepository : Repository<Person>
-    {   
+    {
         public PersonRepository(TursoClient dbClient)
         : base(dbClient)
         {
@@ -9,17 +9,55 @@ namespace GiftServer
 
         public async Task<Person[]> GetMyPeople(Guid userId)
         {
-            var result = await DbClient.ExecuteQueryAsync("SELECT * FROM People2"); // where id=?", userId);
+            var parameters = new List<(string, object)>(){("text", userId)};
+            var result = await DbClient.ExecuteQueryAsync(
+                """
+                SELECT p.id, p.name, p.birthday FROM People2 p
+                JOIN UserPeople up ON up.personId = p.id
+                JOIN User u ON up.userId = u.userId
+                WHERE u.userId = ?
+                """
+                , parameters);
+
             return ParseResults(result);
         }
 
-        public async Task AddNewPerson(string name, DateTime? birthday)
+        public async Task<Person?> GetPerson(Guid id)
+        {
+            var parameters = new List<(string, object)>(){("text", id.ToString())};
+            var queryResult = await DbClient.ExecuteQueryAsync(
+                """
+                SELECT p.id, p.name, p.birthday FROM People2 p
+                WHERE p.id = ?
+                """
+                , parameters);
+
+            var result = ParseResults(queryResult);
+            if (result.Length == 0)
+            {
+                return null;
+            }
+
+            return result[0];
+        }
+
+        public async Task AddNewPerson(string name, DateTime? birthday, Guid userId)
         {
             var query = "INSERT INTO People2 VALUES (?, ?, ?)";
             var idStr = Guid.NewGuid().ToString();
             var birthdayStr = birthday.ToString();
 
-            var parameters = new List<(string, object)>(){ ("text", idStr), ("text", name), ("text", birthdayStr) };
+            var parameters = new List<(string, object)>(){ 
+                ("text", idStr),
+                ("text", name),
+                ("text", birthdayStr) };
+            await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
+
+
+            query = "INSERT INTO UserPeople VALUES (?, ?)";
+            parameters = new List<(string, object)>(){ 
+                ("text", userId.ToString()),
+                ("text", idStr)};
             await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
         }
 
@@ -27,11 +65,19 @@ namespace GiftServer
         {
             var query =
             """
-            DELETE FROM People2
-            WHERE id = ?
+            DELETE FROM UserPeople
+            WHERE personId = ?
             """;
             var idStr = id.ToString();
             var parameters = new List<(string, object)>(){ ("text", idStr) };
+            await DbClient.ExecuteQueryAsync(query, parameters);
+
+            query =
+            """
+            DELETE FROM People2
+            WHERE id = ?
+            """;
+            parameters = new List<(string, object)>(){ ("text", idStr) };
             await DbClient.ExecuteQueryAsync(query, parameters);
         }
 

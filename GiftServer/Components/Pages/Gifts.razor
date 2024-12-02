@@ -1,9 +1,10 @@
 @page "/gifts/{personId}"
 @inject GiftRepository repo
+@inject PersonRepository personRepo
 
 <PageTitle>Gifts</PageTitle>
 
-<h1>Gifts for ...</h1>
+<h1>Gifts for @personName</h1>
 
 <p>Take some time to reflect on them. What is going on in their life right now? What gifts would they enjoy receiving?</p>
 
@@ -17,7 +18,7 @@ else
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Person</th>
+                <th>Link</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -26,17 +27,17 @@ else
             {
                 <tr>
                     <td>@gift.Name</td>
-                    <td>@gift.PersonName</td>
+                    <td><a href="@gift.Link" target="_blank">@gift.Link</a></td>
                     <td><button class="btn btn-link p-0" @onclick="() => DeleteAsync(gift.Id)">Delete</button></td>
                 </tr>
             }
         </tbody>
     </table>
-
     <form method="post" @onsubmit="SubmitAsync" @formname="starship-plain-form">
     <AntiforgeryToken />
         <div>
-            <InputText @bind-Value="NewGiftName" />
+            <InputText @bind-Value="NewGiftName" placeholder="Gift name" />
+            <InputText @bind-Value="Link" placeholder="Link (url)"/>
         </div>
         <div>
             <button type="submit">Submit</button>
@@ -48,14 +49,22 @@ else
 
     [Parameter]
     public string PersonId { get; set; }
+
+    private string personName;
     private Gift[]? gifts;
 
     [SupplyParameterFromForm]
     private string NewGiftName { get; set; } = string.Empty;
 
+    [SupplyParameterFromForm]
+    private string Link { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         this.NewGiftName = string.Empty;
+        this.Link = string.Empty;
+        var person = await personRepo.GetPerson(Guid.Parse(PersonId));
+        this.personName = person.Name; 
         gifts = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
     }
 
@@ -66,7 +75,7 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId));
+        await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link);
         await this.OnInitializedAsync();
     }
 

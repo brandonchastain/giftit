@@ -41,7 +41,7 @@ namespace GiftServer
                 }
             };
 
-            var jsonString = JsonSerializer.Serialize(request);
+            string jsonString = JsonSerializer.Serialize(request);
             Debug.WriteLine(jsonString);
 
             var content = new StringContent(
@@ -50,7 +50,7 @@ namespace GiftServer
                 "application/json");
 
             var response = await httpClient.PostAsync($"{dbUrl}/v2/pipeline", content);
-            var jsonResponse = await response.Content.ReadAsStringAsync();
+            string jsonResponse = await response.Content.ReadAsStringAsync();
             Debug.WriteLine(jsonResponse);
 
             response.EnsureSuccessStatusCode();
@@ -60,9 +60,12 @@ namespace GiftServer
             });
 
             var res = new List<Result>();
-            foreach (var outerResult in outerResponse.Results)
-            {
-                res.Add(outerResult.Response.Result);
+            if (outerResponse != null && outerResponse.Results != null)
+            {    
+                foreach (var outerResult in outerResponse.Results)
+                {
+                    res.Add(outerResult.Response.Result);
+                }
             }
             return res;
         }
