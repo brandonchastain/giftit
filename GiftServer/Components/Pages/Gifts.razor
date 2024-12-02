@@ -1,13 +1,11 @@
 @page "/gifts/{personId}"
-@attribute [StreamRendering]
 @inject GiftRepository repo
-@inject NavigationManager navigationManager
 
 <PageTitle>Gifts</PageTitle>
 
-<h1>Gifts</h1>
+<h1>Gifts for ...</h1>
 
-<p>This component demonstrates showing data.</p>
+<p>Take some time to reflect on them. What is going on in their life right now? What gifts would they enjoy receiving?</p>
 
 @if (gifts == null)
 {
@@ -20,6 +18,7 @@ else
             <tr>
                 <th>Name</th>
                 <th>Person</th>
+                <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
@@ -28,7 +27,7 @@ else
                 <tr>
                     <td>@gift.Name</td>
                     <td>@gift.PersonName</td>
-                    <td><a href="#" @onclick="async () => await DeleteAsync(gift.Id)" >Delete</a></td>
+                    <td><button class="btn btn-link p-0" @onclick="() => DeleteAsync(gift.Id)">Delete</button></td>
                 </tr>
             }
         </tbody>
@@ -56,6 +55,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        this.NewGiftName = string.Empty;
         gifts = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
     }
 
@@ -67,12 +67,12 @@ else
         }
 
         await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId));
-        navigationManager.NavigateTo($"gifts/{PersonId}");
+        await this.OnInitializedAsync();
     }
 
     private async Task DeleteAsync(Guid id)
     {
         await repo.DeleteGift(id);
-        navigationManager.NavigateTo($"gifts/{PersonId}");
+        await this.OnInitializedAsync();
     }
 }
