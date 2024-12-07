@@ -1,5 +1,5 @@
 @page "/people"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @inject PersonRepository repo
 
 <PageTitle>People</PageTitle>
