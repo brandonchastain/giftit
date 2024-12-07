@@ -12,7 +12,8 @@ namespace GiftServer
             var parameters = new List<(string, object)>{ ("text", email) };
             var result = await DbClient.ExecuteQueryAsync(
                 """
-                SELECT u.userId, u.name, u.email, u.Admin FROM User
+                SELECT u.userId, u.name, u.email, u.Admin
+                FROM User u
                 WHERE u.email = ?
                 """,
                 parameters);

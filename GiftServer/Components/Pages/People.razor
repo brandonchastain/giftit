@@ -5,7 +5,7 @@
 
 <PageTitle>People</PageTitle>
 
-<h1>People</h1>
+<h1>@Email's people</h1>
 
 <p>People who you plan to gift</p>
 
@@ -55,6 +55,7 @@ else
     private static readonly Guid TempUserId = Guid.Parse("b56c8b89-433a-4f14-84c4-c5ec42f51366");
     private Person[]? myPeople;
     private Guid UserId;
+    private string Email;
     
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
@@ -88,9 +89,11 @@ else
         if (authenticationState is not null)
         {
             var state = await authenticationState;
-            var email = state?.User?.Identity?.Name ?? string.Empty;
-            var user = await userRepo.GetUser(email);
+            Email = state?.User?.Identity?.Name ?? string.Empty;
+            //Email = "brandonchastain@gmail.com";
+            var user = await userRepo.GetUser(Email);
             UserId = user.Id;
+            //UserId = TempUserId;
         }
 
         NewPersonName = string.Empty;
