@@ -10,14 +10,41 @@ namespace GiftServer
         public async Task<User> GetUser(string email)
         {
             var parameters = new List<(string, object)>{ ("text", email) };
-            var result = await DbClient.ExecuteQueryAsync(
+            var getResult = async () => await DbClient.ExecuteQueryAsync(
                 """
                 SELECT u.userId, u.name, u.email, u.Admin
                 FROM User u
                 WHERE u.email = ?
                 """,
                 parameters);
-            return ParseResults(result).First();
+
+            var result = await getResult();
+            var parsed = ParseResults(result);
+            if (parsed.FirstOrDefault() == null)
+            {
+                await AddNewUser(email);
+                result = await getResult();
+                parsed = ParseResults(result);
+            }
+            
+            return parsed.First();
+        }
+
+        public async Task AddNewUser(string email)
+        {
+            var userId = Guid.NewGuid().ToString();
+            var name = string.Empty;
+            var parameters = new List<(string, object)>{
+                ("text", userId),
+                ("text", name),
+                ("text", email)
+            };
+            await DbClient.ExecuteQueryAsync(
+                """
+                INSERT INTO User (userId, name, email)
+                VALUES (?, ?, ?)
+                """,
+                parameters);
         }
 
         protected override User ParseSingleResult(Column[] cols, Row[] row)

@@ -74,7 +74,7 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), TempUserId);
+        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), UserId);
         await this.OnInitializedAsync();
     }
 
@@ -90,7 +90,7 @@ else
         {
             var state = await authenticationState;
             Email = state?.User?.Identity?.Name ?? string.Empty;
-            //Email = "brandonchastain@gmail.com";
+            //Email = "brcn5277@protonmail.com";
             var user = await userRepo.GetUser(Email);
             UserId = user.Id;
             //UserId = TempUserId;
