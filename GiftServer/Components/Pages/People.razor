@@ -1,6 +1,7 @@
 @page "/people"
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize]
 @inject PersonRepository repo
+@inject UserRepository userRepo
 
 <PageTitle>People</PageTitle>
 
@@ -53,6 +54,10 @@ else
 @code {
     private static readonly Guid TempUserId = Guid.Parse("b56c8b89-433a-4f14-84c4-c5ec42f51366");
     private Person[]? myPeople;
+    private Guid UserId;
+    
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
 
     [SupplyParameterFromForm]
     private string NewPersonName { get; set; } = string.Empty;
@@ -80,8 +85,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        if (authenticationState is not null)
+        {
+            var state = await authenticationState;
+            var email = state?.User?.Identity?.Name ?? string.Empty;
+            var user = await userRepo.GetUser(email);
+            UserId = user.Id;
+        }
+
         NewPersonName = string.Empty;
         NewPersonBirthday = string.Empty;
-        myPeople = await repo.GetMyPeople(TempUserId);
+        myPeople = await repo.GetMyPeople(UserId);
     }
 }

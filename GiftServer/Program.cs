@@ -18,6 +18,7 @@ var authToken = config["Turso"]["authToken"];
 
 builder.Services.AddSingleton<PersonRepository>();
 builder.Services.AddSingleton<GiftRepository>();
+builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton((_) => new TursoClient(dbUrl, authToken));
 
 builder.Services
