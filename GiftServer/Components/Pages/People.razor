@@ -5,7 +5,7 @@
 
 <PageTitle>People</PageTitle>
 
-<h1>@Email's people</h1>
+<h1>@email's people</h1>
 
 <p>People who you plan to gift</p>
 
@@ -52,13 +52,12 @@ else
 }
 
 @code {
-    private static readonly Guid TempUserId = Guid.Parse("b56c8b89-433a-4f14-84c4-c5ec42f51366");
     private Person[]? myPeople;
-    private Guid UserId;
-    private string Email;
+    private Guid userId;
+    private string email;
     
     [CascadingParameter]
-    private Task<AuthenticationState>? authenticationState { get; set; }
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
 
     [SupplyParameterFromForm]
     private string NewPersonName { get; set; } = string.Empty;
@@ -74,7 +73,7 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), UserId);
+        await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), userId);
         await this.OnInitializedAsync();
     }
 
@@ -86,18 +85,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (authenticationState is not null)
+        if (AuthenticationState is not null)
         {
-            var state = await authenticationState;
-            Email = state?.User?.Identity?.Name ?? string.Empty;
-            //Email = "brcn5277@protonmail.com";
-            var user = await userRepo.GetUser(Email);
-            UserId = user.Id;
-            //UserId = TempUserId;
+            var state = await AuthenticationState;
+            email = state?.User?.Identity?.Name ?? string.Empty;
+            var user = await userRepo.GetUser(email);
+            userId = user.Id;
         }
 
         NewPersonName = string.Empty;
         NewPersonBirthday = string.Empty;
-        myPeople = await repo.GetMyPeople(UserId);
+        myPeople = await repo.GetMyPeople(userId);
     }
 }
