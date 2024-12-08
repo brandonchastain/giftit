@@ -88,7 +88,7 @@ else
         if (AuthenticationState is not null)
         {
             var state = await AuthenticationState;
-            email = state?.User?.Identity?.Name ?? string.Empty;
+            email = state?.User?.Identity?.Name ?? "brandonchastain@gmail.com";
             var user = await userRepo.GetUser(email);
             userId = user.Id;
         }

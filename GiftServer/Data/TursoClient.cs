@@ -19,28 +19,7 @@ namespace GiftServer
 
         public async Task<IEnumerable<Result>> ExecuteQueryAsync(string sql, List<(string, object)> parameters = null)
         {
-            var request = new
-            {
-                requests = new[]
-                {
-                    new
-                    {
-                        type = "execute",
-                        stmt = new
-                        {
-                            sql = sql,
-                            args = (parameters ?? new List<(string, object)>()).Select(p =>
-                                new {
-                                    // "integer", "text"
-                                    type = p.Item1,
-                                    value = p.Item2
-                                }
-                            )
-                        }
-                    }
-                }
-            };
-
+            var request = CreateDbRequest(sql, parameters);
             string jsonString = JsonSerializer.Serialize(request);
             Debug.WriteLine(jsonString);
 
@@ -68,6 +47,31 @@ namespace GiftServer
                 }
             }
             return res;
+        }
+
+        private object CreateDbRequest(string sql, List<(string, object)> parameters)
+        {
+            return new
+            {
+                requests = new[]
+                {
+                    new
+                    {
+                        type = "execute",
+                        stmt = new
+                        {
+                            sql = sql,
+                            args = (parameters ?? new List<(string, object)>()).Select(p =>
+                                new {
+                                    // "integer", "text"
+                                    type = p.Item1,
+                                    value = p.Item2
+                                }
+                            )
+                        }
+                    }
+                }
+            };
         }
     }
 

@@ -2,6 +2,8 @@
 @attribute [Authorize]
 @inject GiftRepository repo
 @inject PersonRepository personRepo
+@inject INotifier notifier
+@using Hangfire
 
 <PageTitle>Gifts</PageTitle>
 
@@ -79,7 +81,8 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link);
+        var gift = await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link);
+        ScheduleNotification(gift);
         await this.OnInitializedAsync();
     }
 
@@ -87,5 +90,14 @@ else
     {
         await repo.DeleteGift(id);
         await this.OnInitializedAsync();
+    }
+
+    private void ScheduleNotification(Gift gift)
+    {
+        var message = $"Time to buy {this.personName} a gift! {gift.Name} ({gift.Link})";
+        
+        BackgroundJob.Schedule<INotifier>(
+            (notifier) => notifier.Notify("brandonchastain@gmail.com", message),
+            TimeSpan.FromSeconds(1));
     }
 }

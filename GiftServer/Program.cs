@@ -3,7 +3,10 @@ using GiftServer;
 using IniParser;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies; 
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Hangfire;
+using Hangfire.Storage.SQLite;
+using GiftServer.Notification;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +19,19 @@ var config = parser.ReadFile("appconfig.ini");
 var dbUrl = config["Turso"]["dbUrl"];
 var authToken = config["Turso"]["authToken"];
 
+var sendgridKey = Environment.GetEnvironmentVariable("SENDGRIDAPIKEY") ?? string.Empty;
+GlobalConfiguration.Configuration.UseSQLiteStorage();
+
+builder.Services.AddSingleton<INotifier, EmailNotifier>((_) => new EmailNotifier(sendgridKey));
 builder.Services.AddSingleton<PersonRepository>();
 builder.Services.AddSingleton<GiftRepository>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton((_) => new TursoClient(dbUrl, authToken));
-
+builder.Services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSQLiteStorage());
+builder.Services.AddHangfireServer();
 builder.Services
     .AddAuth0WebAppAuthentication(options => {
       options.Domain = builder.Configuration["Auth0:Domain"];
@@ -41,6 +52,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+//app.UseHangfireDashboard();
 
 app.MapGet("/Account/Login", async (HttpContext httpContext, string returnUrl = "/") =>
 {

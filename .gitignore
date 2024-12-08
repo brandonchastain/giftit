@@ -1,7 +1,10 @@
 # start brchasta
 
-# config and secrets
+# config
 GiftServer/appconfig.ini
+
+# database
+GiftServer/*.db*
 
 # end brchasta
 

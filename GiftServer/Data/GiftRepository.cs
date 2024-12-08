@@ -20,7 +20,21 @@ namespace GiftServer
             return ParseResults(result);
         }
 
-        public async Task AddNewGift(string name, Guid personId, string link)
+        public async Task<Gift> GetGift(Guid giftId)
+        {
+            var parameters = new List<(string, object)>{ ("text", giftId) };
+            var result = await DbClient.ExecuteQueryAsync(
+                """
+                SELECT g.id, g.name, p.name, g.Link
+                FROM Gift3 g
+                JOIN People2 p on p.id = g.personId
+                WHERE g.id = ?
+                """,
+                parameters);
+            return ParseResults(result).First();
+        }
+
+        public async Task<Gift> AddNewGift(string name, Guid personId, string link)
         {
             if (!link.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
@@ -37,6 +51,8 @@ namespace GiftServer
                 ("text", personIdStr),
                 ("text", link) };
             await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
+
+            return await this.GetGift(Guid.Parse(idStr));
         }
 
         public async Task DeleteGift(Guid id)
