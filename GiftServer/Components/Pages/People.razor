@@ -93,7 +93,7 @@ else
             email = state?.User?.Identity?.Name ?? email;
         }
 
-        logger.LogInformation("USERNAME: " + email);
+        logger.LogInformation($"USERNAME: [{email}]");
         var user = await userRepo.GetUser(email);
         userId = user.Id;
 
