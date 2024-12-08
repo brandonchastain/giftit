@@ -1,5 +1,5 @@
 @page "/gifts/{personId}"
-@attribute [Authorize]
+@*@attribute [Authorize]*@
 @inject GiftRepository repo
 @inject PersonRepository personRepo
 @inject INotifier notifier
@@ -41,6 +41,7 @@ else
         <div>
             <InputText @bind-Value="NewGiftName" placeholder="Gift name" />
             <InputText @bind-Value="Link" placeholder="Link (url)"/>
+            <InputText @bind-Value="GiftDate" placeholder="Date (MM/dd/YYYY)"/>
         </div>
         <div>
             <button type="submit">Submit</button>
@@ -49,6 +50,8 @@ else
 }
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
 
     [Parameter]
     public string PersonId { get; set; }
@@ -61,6 +64,9 @@ else
 
     [SupplyParameterFromForm]
     private string Link { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string GiftDate { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,8 +87,15 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        var gift = await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link);
-        ScheduleNotification(gift);
+        string email = "brandonchastain@gmail.com";
+        if (AuthenticationState is not null)
+        {
+            var state = await AuthenticationState;
+            email = state?.User?.Identity?.Name ?? email;
+        }
+
+        var gift = await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link, GiftDate);
+        ScheduleNotification(email, gift);
         await this.OnInitializedAsync();
     }
 
@@ -92,12 +105,13 @@ else
         await this.OnInitializedAsync();
     }
 
-    private void ScheduleNotification(Gift gift)
+    private void ScheduleNotification(string email, Gift gift)
     {
         var message = $"Time to buy {this.personName} a gift! {gift.Name} ({gift.Link})";
-        
+        DateTime date = gift.Date ?? DateTime.UtcNow;
+        TimeSpan delay = date - DateTime.UtcNow;
         BackgroundJob.Schedule<INotifier>(
-            (notifier) => notifier.Notify("brandonchastain@gmail.com", message),
-            TimeSpan.FromSeconds(1));
+            (notifier) => notifier.Notify(email, message),
+            delay);
     }
 }

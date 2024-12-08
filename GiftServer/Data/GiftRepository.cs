@@ -12,7 +12,7 @@ namespace GiftServer
             var parameters = new List<(string, object)>{ ("text", personId) };
             var result = await DbClient.ExecuteQueryAsync(
                 """
-                SELECT g.id, g.name, p.name, g.Link FROM Gift3 g
+                SELECT g.id, g.name, p.name, g.Link, g.date FROM Gift3 g
                 JOIN People2 p on p.id = g.personId
                 WHERE personId = ?
                 """,
@@ -25,7 +25,7 @@ namespace GiftServer
             var parameters = new List<(string, object)>{ ("text", giftId) };
             var result = await DbClient.ExecuteQueryAsync(
                 """
-                SELECT g.id, g.name, p.name, g.Link
+                SELECT g.id, g.name, p.name, g.Link, g.date
                 FROM Gift3 g
                 JOIN People2 p on p.id = g.personId
                 WHERE g.id = ?
@@ -34,22 +34,23 @@ namespace GiftServer
             return ParseResults(result).First();
         }
 
-        public async Task<Gift> AddNewGift(string name, Guid personId, string link)
+        public async Task<Gift> AddNewGift(string name, Guid personId, string link, string date)
         {
             if (!link.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 link = "https://" + link;
             }
 
-            var query = "INSERT INTO Gift3 VALUES (?, ?, ?, ?)";
+            var query = "INSERT INTO Gift3 VALUES (?, ?, ?, ?, ?)";
             var idStr = Guid.NewGuid().ToString();
             var personIdStr = personId.ToString();
-
             var parameters = new List<(string, object)>(){
                 ("text", idStr),
                 ("text", name),
                 ("text", personIdStr),
-                ("text", link) };
+                ("text", link),
+                ("text", date),
+            };
             await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
 
             return await this.GetGift(Guid.Parse(idStr));
@@ -73,8 +74,9 @@ namespace GiftServer
             string name = row[1].Value;
             string personName = row[2].Value;
             string link = row[3].Value;
+            DateTime? date = row[4].Value == null ? null : DateTime.Parse(row[4].Value);
             
-            return new Gift(id, name, personName, link);
+            return new Gift(id, name, personName, link, date);
         }
     }
 }
