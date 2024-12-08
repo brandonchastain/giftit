@@ -21,6 +21,7 @@ else
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Date</th>
                 <th>Link</th>
                 <th>&nbsp;</th>
             </tr>
@@ -30,6 +31,7 @@ else
             {
                 <tr>
                     <td>@gift.Name</td>
+                    <td>@gift.Date</td>
                     <td><a href="@gift.Link" target="_blank">@gift.Link</a></td>
                     <td><button class="btn btn-link p-0" @onclick="() => DeleteAsync(gift.Id)">Delete</button></td>
                 </tr>
