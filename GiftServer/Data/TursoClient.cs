@@ -21,7 +21,7 @@ namespace GiftServer
         {
             var request = CreateDbRequest(sql, parameters);
             string jsonString = JsonSerializer.Serialize(request);
-            Debug.WriteLine(jsonString);
+            Trace.TraceInformation(jsonString);
 
             var content = new StringContent(
                 jsonString,
@@ -30,7 +30,7 @@ namespace GiftServer
 
             var response = await httpClient.PostAsync($"{dbUrl}/v2/pipeline", content);
             string jsonResponse = await response.Content.ReadAsStringAsync();
-            Debug.WriteLine(jsonResponse);
+            Trace.TraceInformation(jsonResponse);
 
             response.EnsureSuccessStatusCode();
             var outerResponse = JsonSerializer.Deserialize<OuterResponse>(jsonResponse, new JsonSerializerOptions()
