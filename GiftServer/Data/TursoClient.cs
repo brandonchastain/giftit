@@ -23,6 +23,7 @@ namespace GiftServer
         {
             var request = CreateDbRequest(sql, parameters);
             string jsonString = JsonSerializer.Serialize(request);
+            logger.LogInformation(dbUrl);
             logger.LogInformation(jsonString);
 
             var content = new StringContent(
@@ -39,7 +40,6 @@ namespace GiftServer
             {
                 PropertyNameCaseInsensitive = true,
             });
-
             var res = new List<Result>();
             if (outerResponse != null && outerResponse.Results != null)
             {    
