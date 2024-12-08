@@ -26,7 +26,10 @@ builder.Services.AddSingleton<INotifier, EmailNotifier>((_) => new EmailNotifier
 builder.Services.AddSingleton<PersonRepository>();
 builder.Services.AddSingleton<GiftRepository>();
 builder.Services.AddSingleton<UserRepository>();
-builder.Services.AddSingleton((_) => new TursoClient(dbUrl, authToken));
+builder.Services.AddSingleton((sp) =>
+{
+  return new TursoClient(sp.GetRequiredService<ILogger<TursoClient>>(), dbUrl, authToken);
+});
 builder.Services.AddHangfire(configuration => configuration
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
@@ -37,6 +40,12 @@ builder.Services
       options.Domain = builder.Configuration["Auth0:Domain"];
       options.ClientId = builder.Configuration["Auth0:ClientId"];
     });
+builder.Services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.AddConsole();
+            loggingBuilder.AddDebug();
+            loggingBuilder.AddAzureWebAppDiagnostics();
+        });
 
 var app = builder.Build();
 

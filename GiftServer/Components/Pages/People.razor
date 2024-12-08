@@ -1,7 +1,8 @@
 @page "/people"
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 @inject PersonRepository repo
 @inject UserRepository userRepo
+@inject ILogger<People> logger
 
 <PageTitle>People</PageTitle>
 
@@ -92,6 +93,7 @@ else
             email = state?.User?.Identity?.Name ?? email;
         }
 
+        logger.LogInformation("USERNAME: " + email);
         var user = await userRepo.GetUser(email);
         userId = user.Id;
 

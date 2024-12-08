@@ -8,13 +8,15 @@ namespace GiftServer
     {
         private readonly HttpClient httpClient;
         private readonly string dbUrl;
+        private readonly ILogger<TursoClient> logger;
 
-        public TursoClient(string dbUrl, string authToken)
+        public TursoClient(ILogger<TursoClient> logger, string dbUrl, string authToken)
         {
             this.dbUrl = dbUrl;
             httpClient = new HttpClient(); // TODO: use httpclientfactory
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", authToken);
+            this.logger = logger;
         }
 
         public async Task<IEnumerable<Result>> ExecuteQueryAsync(string sql, List<(string, object)> parameters = null)
