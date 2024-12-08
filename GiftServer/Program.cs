@@ -3,6 +3,7 @@ using GiftServer;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Logging.AzureAppServices;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using GiftServer.Notification;
@@ -47,6 +48,13 @@ builder.Services.AddLogging(loggingBuilder =>
             loggingBuilder.AddDebug();
             //loggingBuilder.AddAzureWebAppDiagnostics();
         });
+
+builder.Services.Configure<AzureFileLoggerOptions>(options =>
+{
+    options.FileName = "diagnostics-";
+    options.FileSizeLimit = 50 * 1024;
+    options.RetainedFileCountLimit = 5;
+});
 
 var app = builder.Build();
 
