@@ -107,11 +107,16 @@ else
 
     private void ScheduleNotification(string email, Gift gift)
     {
-        var message = $"Time to buy {this.personName} a gift! {gift.Name} ({gift.Link})";
         DateTime date = gift.Date ?? DateTime.UtcNow;
-        TimeSpan delay = date - DateTime.UtcNow;
+        TimeSpan delay = (date - DateTime.UtcNow) - TimeSpan.FromWeeks(2);
+        
+        if (delay < TimeSpan.Zero)
+        {
+            delay = TimeSpan.Zero;
+        }
+
         BackgroundJob.Schedule<INotifier>(
-            (notifier) => notifier.Notify(email, message),
+            (notifier) => notifier.Notify(email, gift),
             delay);
     }
 }

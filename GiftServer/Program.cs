@@ -23,7 +23,13 @@ var authToken = Environment.GetEnvironmentVariable("TURSOAUTHTOKEN") ?? string.E
 var sendgridKey = Environment.GetEnvironmentVariable("SENDGRIDAPIKEY") ?? string.Empty;
 GlobalConfiguration.Configuration.UseSQLiteStorage();
 
-builder.Services.AddSingleton<INotifier, EmailNotifier>((_) => new EmailNotifier(sendgridKey));
+builder.Services.AddSingleton<INotifier, EmailNotifier>((sp) =>
+{
+  return new EmailNotifier(
+    sp.GetRequiredService<ILogger<EmailNotifier>>(),
+    sp.GetRequiredService<GiftRepository>(),
+    sendgridKey);
+});
 builder.Services.AddSingleton<PersonRepository>();
 builder.Services.AddSingleton<GiftRepository>();
 builder.Services.AddSingleton<UserRepository>();
