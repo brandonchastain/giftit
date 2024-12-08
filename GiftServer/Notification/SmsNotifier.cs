@@ -11,10 +11,10 @@ namespace GiftServer.Notification
             this.smsClient = new SmsClient(connectionString);
         }
 
-        public async Task Notify(string phoneNumber, string body)
+        public async Task Notify(string phoneNumber, Gift gift)
         {
             await Task.Yield();
-            
+            var body = $"Time to buy {gift.PersonName} a gift! {gift.Name} ({gift.Link})";
             SmsSendResult sendResult = smsClient.Send(
                 from: FromPhoneNumber,
                 to: phoneNumber,
