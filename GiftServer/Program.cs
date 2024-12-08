@@ -1,6 +1,5 @@
 using GiftServer.Components;
 using GiftServer;
-using IniParser;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,11 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var parser = new FileIniDataParser();
-var config = parser.ReadFile("appconfig.ini");
-var dbUrl = config["Turso"]["dbUrl"];
-var authToken = config["Turso"]["authToken"];
-
+// var parser = new FileIniDataParser();
+// var config = parser.ReadFile("appconfig.ini");
+// var dbUrl = config["Turso"]["dbUrl"];
+// var authToken = config["Turso"]["authToken"];
+var dbUrl = Environment.GetEnvironmentVariable("TURSODBURL") ?? string.Empty;
+var authToken = Environment.GetEnvironmentVariable("TURSOAUTHTOKEN") ?? string.Empty;
 var sendgridKey = Environment.GetEnvironmentVariable("SENDGRIDAPIKEY") ?? string.Empty;
 GlobalConfiguration.Configuration.UseSQLiteStorage();
 
