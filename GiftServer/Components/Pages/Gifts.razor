@@ -108,7 +108,7 @@ else
     private void ScheduleNotification(string email, Gift gift)
     {
         DateTime date = gift.Date ?? DateTime.UtcNow;
-        TimeSpan delay = (date - DateTime.UtcNow) - TimeSpan.FromWeeks(2);
+        TimeSpan delay = (date - DateTime.UtcNow) - TimeSpan.FromDays(14);
         
         if (delay < TimeSpan.Zero)
         {
