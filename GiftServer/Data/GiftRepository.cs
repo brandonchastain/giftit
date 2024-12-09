@@ -63,6 +63,7 @@ namespace GiftServer
                 ("text", personIdStr),
                 ("text", link),
                 ("text", date),
+                ("text", "0"),
             };
             await DbClient.ExecuteQueryAsync(query, parameters); // todo: check status?
 
