@@ -35,7 +35,7 @@ namespace GiftServer
             return ParseResults(result).First();
         }
 
-        public async Task<Gift> SetIsPurchased(Guid giftId)
+        public async Task SetIsPurchased(Guid giftId)
         {
             var parameters = new List<(string, object)>{ ("text", giftId) };
             var result = await DbClient.ExecuteQueryAsync(

@@ -39,7 +39,7 @@ else
                     <td>
                         @if (!gift.IsPurchased)
                         {
-                            <button class="btn btn-link p-0" @onclick="() => MarkAsPurchased(gift.Id)">
+                            <button class="btn btn-link p-0" @onclick="() => MarkAsPurchasedAsync(gift.Id)">
                                 Purchased
                             </button>
                         }
