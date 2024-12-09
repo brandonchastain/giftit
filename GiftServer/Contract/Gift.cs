@@ -1,4 +1,10 @@
 namespace GiftServer
 {
-    public record Gift(Guid Id, string Name, string? PersonName, string? Link, DateTime? Date);
+    public record Gift(
+        Guid Id,
+        string Name,
+        string? PersonName,
+        string? Link,
+        DateTime? Date,
+        bool IsPurchased);
 }

@@ -21,6 +21,7 @@ else
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Purchased?</th>
                 <th>Date</th>
                 <th>Link</th>
                 <th>&nbsp;</th>
@@ -31,8 +32,10 @@ else
             {
                 <tr>
                     <td>@gift.Name</td>
+                    <td>@gift.IsPurchased</td>
                     <td>@gift.Date</td>
                     <td><a href="@gift.Link" target="_blank">@gift.Link</a></td>
+                    <td><button class="btn btn-link p-0" @onclick="() => MarkAsPurchased(gift.Id)">Purchased</button></td>
                     <td><button class="btn btn-link p-0" @onclick="() => DeleteAsync(gift.Id)">Delete</button></td>
                 </tr>
             }
@@ -104,6 +107,12 @@ else
     private async Task DeleteAsync(Guid id)
     {
         await repo.DeleteGift(id);
+        await this.OnInitializedAsync();
+    }
+
+    private async Task MarkAsPurchasedAsync(Guid id)
+    {
+        await repo.SetIsPurchased(id);
         await this.OnInitializedAsync();
     }
 
