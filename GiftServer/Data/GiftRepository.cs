@@ -54,7 +54,7 @@ namespace GiftServer
                 link = "https://" + link;
             }
 
-            var query = "INSERT INTO Gift3 VALUES (?, ?, ?, ?, ?)";
+            var query = "INSERT INTO Gift3 VALUES (?, ?, ?, ?, ?, ?)";
             var idStr = Guid.NewGuid().ToString();
             var personIdStr = personId.ToString();
             var parameters = new List<(string, object)>(){
