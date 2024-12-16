@@ -1,5 +1,5 @@
 @page "/people"
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 @inject PersonRepository repo
 @inject UserRepository userRepo
 @inject ILogger<People> logger
@@ -21,6 +21,7 @@ else
             <tr>
                 <th>Name</th>
                 <th>Birthday</th>
+                <th>Faves</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@ else
                         <a href="gifts/@person.Id">@person.Name</a>
                     </td>
                     <td>@person.Birthday</td>
+                    <td><a href="stores/@person.Id"a>Faves</a></td>
                     <td>
                         <button class="btn btn-link p-0" @onclick="() => DeleteAsync(person.Id)">Delete</button>
                     </td>
@@ -55,7 +57,7 @@ else
 @code {
     private Person[]? myPeople;
     private Guid userId;
-    private string email;
+    private string? email;
     
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -66,12 +68,17 @@ else
     [SupplyParameterFromForm]
     private string NewPersonBirthday { get; set; } = string.Empty;
 
+    [SupplyParameterFromForm]
+    private string NewStoreName { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string NewStoreUrl { get; set; } = string.Empty;
     private async Task SubmitAsync()
     {
         if (string.IsNullOrWhiteSpace(NewPersonName) ||
             string.IsNullOrWhiteSpace(NewPersonBirthday))
         {
-            throw new Exception("Invalid person data.");   
+            throw new ArgumentException("Invalid person data.");   
         }
 
         await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), userId);
@@ -86,12 +93,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        email = "brandonchastain@gmail.com";
-        if (AuthenticationState is not null)
-        {
-            var state = await AuthenticationState;
-            email = state?.User?.Identity?.Name ?? email;
-        }
+        email = await AuthenticationState.GetUsername();
 
         logger.LogInformation($"USERNAME: [{email}]");
         var user = await userRepo.GetUser(email);

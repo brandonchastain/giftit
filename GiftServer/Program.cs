@@ -33,6 +33,7 @@ builder.Services.AddSingleton<INotifier, EmailNotifier>((sp) =>
 builder.Services.AddSingleton<PersonRepository>();
 builder.Services.AddSingleton<GiftRepository>();
 builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddSingleton<StoreRepository>();
 builder.Services.AddSingleton((sp) =>
 {
   return new TursoClient(sp.GetRequiredService<ILogger<TursoClient>>(), dbUrl, authToken);
