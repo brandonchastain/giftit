@@ -9,11 +9,11 @@ namespace WasmApp.Services
     public class StoreClient
     {
         private readonly HttpClient _httpClient;
-        private readonly RssWasmConfig _config;
+        private readonly GiftedAppConfig _config;
         private readonly ILogger<StoreClient> _logger;
         private bool _disposed;
 
-        public StoreClient(RssWasmConfig config, ILogger<StoreClient> logger, IHttpClientFactory httpClientFactory)
+        public StoreClient(GiftedAppConfig config, ILogger<StoreClient> logger, IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("ApiClient");
             _config = config;

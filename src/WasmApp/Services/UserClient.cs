@@ -9,11 +9,11 @@ namespace WasmApp.Services
     public class UserClient
     {
         private readonly HttpClient _httpClient;
-        private readonly RssWasmConfig _config;
+        private readonly GiftedAppConfig _config;
         private readonly ILogger<UserClient> _logger;
         private bool _disposed;
 
-        public UserClient(RssWasmConfig config, ILogger<UserClient> logger, IHttpClientFactory httpClientFactory)
+        public UserClient(GiftedAppConfig config, ILogger<UserClient> logger, IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("ApiClient");
             _config = config;

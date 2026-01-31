@@ -9,11 +9,11 @@ namespace WasmApp.Services
     public class GiftClient
     {
         private readonly HttpClient _httpClient;
-        private readonly RssWasmConfig _config;
+        private readonly GiftedAppConfig _config;
         private readonly ILogger<GiftClient> _logger;
         private bool _disposed;
 
-        public GiftClient(RssWasmConfig config, ILogger<GiftClient> logger, IHttpClientFactory httpClientFactory)
+        public GiftClient(GiftedAppConfig config, ILogger<GiftClient> logger, IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("ApiClient");
             _config = config;

@@ -1,4 +1,4 @@
-# RSS Reader Web App (frontend)
+# Gifted Web App (frontend)
 
 A static web app that runs on WASM, written in C# with Blazor.
 
@@ -11,10 +11,10 @@ C#, Blazor Webassembly, Javascript, HTML, CSS
 Azure Static Web App with easy auth enabled
 
 
-# RSS Reader Web API Server (backend)
+# Gifted Web API Server (backend)
 
-An ASP.NET Core Web API, targeting latest .NET, that powers the RSS Reader frontend by processing RSS feeds, storing data on disk in a SQLite database,
-and making that data available through several HTTP endpoints.
+An ASP.NET Core Web API, targeting latest .NET, that powers the Gifted frontend by
+storing data and exposing HTTP endpoints.
 
 ## Stack
 
@@ -22,16 +22,13 @@ C#, ASP.NET, SQLite
 
 ## Hosting infrastructure
 
-~~Azure app service standard b1s and public ip~~
-
-~~Azure VM, Standard_B1s West US 2 region, public ip, and disk~~
-
 Azure Container App instance with ephemeral storage, periodically backed up to azure files
 
 ## Endpoints (C# controllers)
-* `/api/feed/*` - Retrieve, refresh, and import/export RSS feeds
-* `/api/item/*` - Retrieve, search, and save RSS posts
+* `/api/gift/*` - Get/add/delete a gift for a person
+* `/api/person/*` - Get/add/delete a person
+* `/api/store/*` - Get/add/delete favorite stores for your people
 * `/api/user/*` - Retrieve user info and login/register
 
 ## Database
-SQLite database to store RSS feeds, items and users locally (only usernames/some metadata, not passwords. auth is handled externally by Azure App Service easy auth).
+All data is stored in a SQLite file which is periodically backed up to Azure storage.

@@ -7,11 +7,11 @@ namespace WasmApp.Services;
 
 public class MyAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly RssWasmConfig _config;
+    private readonly GiftedAppConfig _config;
     private readonly HttpClient _client;
     private readonly ILogger<MyAuthenticationStateProvider> _logger;
 
-    public MyAuthenticationStateProvider(RssWasmConfig config, ILogger<MyAuthenticationStateProvider> logger)
+    public MyAuthenticationStateProvider(GiftedAppConfig config, ILogger<MyAuthenticationStateProvider> logger)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _client = new HttpClient { BaseAddress = new Uri(config.AuthApiBaseUrl) };

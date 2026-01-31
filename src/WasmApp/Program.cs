@@ -13,10 +13,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Configuration.AddJsonFile("appsettings.json", optional: false)
     .AddJsonFile("appsettings.Development.json", optional: true);
 
-// Configure RssWasmConfig as a singleton with values from configuration
-var config = RssWasmConfig.LoadFromAppSettings(builder.Configuration);
+// Configure GiftedAppConfig as a singleton with values from configuration
+var config = GiftedAppConfig.LoadFromAppSettings(builder.Configuration);
 builder.Services
-    .AddSingleton<RssWasmConfig>(_ => config);
+    .AddSingleton<GiftedAppConfig>(_ => config);
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, MyAuthenticationStateProvider>();

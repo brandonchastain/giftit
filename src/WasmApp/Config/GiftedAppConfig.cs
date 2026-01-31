@@ -1,9 +1,9 @@
 
 namespace RssApp.Config
 {
-    public class RssWasmConfig
+    public class GiftedAppConfig
     {
-        public RssWasmConfig()
+        public GiftedAppConfig()
         {
         }
 
@@ -12,10 +12,10 @@ namespace RssApp.Config
         public bool EnableTestAuth { get; set; } = false;
         public string TestAuthUsername { get; set; } = "testuser";
 
-        public static RssWasmConfig LoadFromAppSettings(IConfiguration configuration)
+        public static GiftedAppConfig LoadFromAppSettings(IConfiguration configuration)
         {
-            var config = new RssWasmConfig();
-            configuration.GetSection(nameof(RssWasmConfig)).Bind(config);
+            var config = new GiftedAppConfig();
+            configuration.GetSection(nameof(GiftedAppConfig)).Bind(config);
             return config;
         }
     }

@@ -37,10 +37,10 @@ az account set --subscription "YOUR_SUBSCRIPTION_ID"
 az group create --name gifted-rg --location westus2
 
 # Create Azure Container Registry (ACR) for your images
-az acr create --resource-group gifted-rg   --name giftedacr   --sku Basic   --location westus2
+az acr create --resource-group gifted-rg   --name rssreaderacr   --sku Basic   --location westus2
 
 # Enable admin access (for easier pushing)
-az acr update --name giftedacr --admin-enabled true
+az acr update --name rssreaderacr --admin-enabled true
 ```
 
 ## Step 2: Build and Push Docker Image
@@ -50,10 +50,10 @@ az acr update --name giftedacr --admin-enabled true
 cd c:\dev\giftit2\giftit\src
 
 # Login to ACR
-az acr login --name giftedacr
+az acr login --name rssreaderacr
 
 # Build and push the image to ACR
-az acr build --registry giftedacr   --image gifted-api:latest   --file Server/Dockerfile   .
+az acr build --registry rssreaderacr   --image gifted-api:latest   --file Server/Dockerfile   .
 ```
 
 ## Step 3: Deploy Infrastructure
@@ -63,20 +63,20 @@ az acr build --registry giftedacr   --image gifted-api:latest   --file Server/Do
 cd ..\infrastructure
 
 # NOTE: The container image used below match the containerImage parameter in main.bicepparam
-# Example: param containerImage = 'giftedacr.azurecr.io/gifted-api:latest'
+# Example: param containerImage = 'rssreaderacr.azurecr.io/gifted-api:latest'
 # Deploy the Bicep template
-az deployment group create --resource-group gifted-rg --template-file main.bicep --parameters main.bicepparam --parameters containerImage='giftedacr.azurecr.io/gifted-api:latest'
+az deployment group create --resource-group gifted-rg --template-file main.bicep --parameters main.bicepparam --parameters containerImage='rssreaderacr.azurecr.io/gifted-api:latest'
 ```
 
 ## Step 4: Configure Container App to Pull from ACR
 
 ```bash
 # Get ACR credentials
-$ACR_USERNAME = (az acr credential show --name giftedacr --query username -o tsv)
-$ACR_PASSWORD = (az acr credential show --name giftedacr --query passwords[0].value -o tsv)
+$ACR_USERNAME = (az acr credential show --name rssreaderacr --query username -o tsv)
+$ACR_PASSWORD = (az acr credential show --name rssreaderacr --query passwords[0].value -o tsv)
 
 # Update Container App with registry credentials
-az containerapp registry set   --name gifted-api   --resource-group gifted-rg   --server giftedacr.azurecr.io   --username $ACR_USERNAME   --password $ACR_PASSWORD
+az containerapp registry set   --name gifted-api   --resource-group gifted-rg   --server rssreaderacr.azurecr.io   --username $ACR_USERNAME   --password $ACR_PASSWORD
 
 ```
 
@@ -118,10 +118,10 @@ When you update your code:
 ```bash
 # Rebuild and push new image
 cd c:\dev\giftit2\giftit\src
-az acr build --registry giftedacr   --image gifted-api:latest   --file Server/Dockerfile   .
+az acr build --registry rssreaderacr   --image gifted-api:latest   --file Server/Dockerfile   .
 
 # Container App automatically pulls latest image on next revision
-az containerapp update   --name gifted-api   --resource-group gifted-rg   --image giftedacr.azurecr.io/gifted-api:latest
+az containerapp update   --name gifted-api   --resource-group gifted-rg   --image rssreaderacr.azurecr.io/gifted-api:latest
 ```
 
 ## Troubleshooting

@@ -77,7 +77,7 @@ resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-0
 // Reference existing ACR
 resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: acrName
-  scope: resourceGroup()
+  scope: resourceGroup('rss-container-rg')
 }
 
 // Container App Environment
