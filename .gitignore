@@ -1,0 +1,14 @@
+.DS_Store
+**/bin
+**/obj
+*.pem
+**/*.log
+**/*.csv
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.zip
+**/*/.env
+**/wwwroot/images/*.ico
+/.vs/*
+.env

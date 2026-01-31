@@ -1,0 +1,100 @@
+@page "/stores/{personId}"
+@attribute [Authorize]
+@* @inject StoreRepository repo
+@inject PersonRepository personRepo *@
+
+<PageTitle>Gifted: Favorites</PageTitle>
+
+<h1>Favorites stores and brands for @personName</h1>
+
+<p>Save their favorite stores & brands here. Come back to get inspired for the next gift!</p>
+
+@if (stores == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Store/Brand Name</th>
+                <th>Link</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var store in stores)
+            {
+                <tr>
+                    <td>@store.Name</td>
+                    <td><a href="@store.Url" target="_blank">@store.Url</a></td>
+                    <td>
+                        <button class="btn btn-link p-0" @onclick="() => DeleteAsync(store.Id)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <form method="post" @onsubmit="SubmitAsync" @formname="starship-plain-form">
+    <AntiforgeryToken />
+        <div>
+            <InputText @bind-Value="Name" placeholder="Store name" />
+            <InputText @bind-Value="Link" placeholder="Store link (url)"/>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [Parameter]
+    public string? PersonId { get; set; }
+
+    private string? personName;
+    private Store[]? stores;
+
+    [SupplyParameterFromForm]
+    private string Name { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string Link { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.Name = string.Empty;
+        this.Link = string.Empty;
+
+        if (PersonId == null)
+        {
+            throw new Exception("Invalid person data.");
+        }
+
+        @* var person = await personRepo.GetPerson(Guid.Parse(PersonId));
+        this.personName = person?.Name;
+        this.stores = await repo.GetStoresForPerson(Guid.Parse(PersonId)); *@
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Name) || PersonId == null)
+        {
+            throw new Exception("Invalid person data.");   
+        }
+
+        @* await repo.AddStoreAsync(Guid.Parse(PersonId), Name, Link); *@
+        await this.OnInitializedAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        @* await repo.DeleteStoreAsync(id); *@
+        await this.OnInitializedAsync();
+    }
+}

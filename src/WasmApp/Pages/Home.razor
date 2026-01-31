@@ -1,0 +1,22 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gifted</PageTitle>
+
+<h1>Welcome to Gifted!</h1>
+
+For people who love to give.
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (await AuthenticationState.GetUsername() != null)
+        {
+            NavigationManager.NavigateTo("People");
+        }
+    }
+}

@@ -1,0 +1,157 @@
+@page "/gifts/{personId}"
+@attribute [Authorize]
+@* @inject GiftRepository repo
+@inject PersonRepository personRepo
+@inject UserRepository userRepo
+@inject INotifier notifier *@
+@inject ILogger<Gifts> logger
+
+@* @using Hangfire *@
+
+<PageTitle>Gifts</PageTitle>
+
+<h1>Gifts for @personName</h1>
+
+<p>Take some time to reflect on them. What is going on in their life right now? What gifts would they enjoy receiving?</p>
+
+@if (gifts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Purchased?</th>
+                <th>Date</th>
+                <th>Link</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var gift in gifts)
+            {
+                <tr>
+                    <td>@gift.Name</td>
+                    <td>@gift.IsPurchased</td>
+                    <td>@gift.Date</td>
+                    <td><a href="@gift.Link" target="_blank">@gift.Link</a></td>
+                    <td>
+                        @if (!gift.IsPurchased)
+                        {
+                            <button class="btn btn-link p-0" @onclick="() => MarkAsPurchasedAsync(gift.Id)">
+                                Purchased
+                            </button>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-link p-0" @onclick="() => DeleteAsync(gift.Id)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <form method="post" @onsubmit="SubmitAsync">
+    <AntiforgeryToken />
+        <div>
+            <InputText @bind-Value="NewGiftName" placeholder="Gift name" />
+            <InputText @bind-Value="Link" placeholder="Link (url)"/>
+            <InputText @bind-Value="GiftDate" placeholder="Date (MM/dd/YYYY)"/>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+}
+
+@code {
+    private string? personName;
+    private Gift[]? gifts;
+    private User curUser;
+    
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [Parameter]
+    public string? PersonId { get; set; }
+
+    [SupplyParameterFromForm]
+    private string NewGiftName { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string Link { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string GiftDate { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.NewGiftName = string.Empty;
+        this.Link = string.Empty;
+
+        if (PersonId == null)
+        {
+            this.logger.LogError("Error: No user is logged in...");
+            return;
+        }
+
+        @* var person = await personRepo.GetPerson(Guid.Parse(PersonId));
+        this.personName = person?.Name;
+        var giftIdeas = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
+        this.gifts = giftIdeas;
+        string? userEmail = await AuthenticationState.GetUsername();
+        this.curUser = await userRepo.GetUser(userEmail!); *@
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewGiftName))
+        {
+            throw new Exception("Invalid person data.");
+        }
+
+        var email = await AuthenticationState.GetUsername();
+
+        if (PersonId == null || email == null)
+        {
+            logger.LogError("Error: No one is logged in...");
+            return;
+        }
+
+        @* var gift = await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link, GiftDate); *@
+        @* ScheduleNotification(email, gift); *@
+        await this.OnInitializedAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        @* await repo.DeleteGift(id); *@
+        await this.OnInitializedAsync();
+    }
+
+    private async Task MarkAsPurchasedAsync(int id)
+    {
+        @* await repo.SetIsPurchased(id); *@
+        await this.OnInitializedAsync();
+    }
+
+    private void ScheduleNotification(string email, Gift gift)
+    {
+        @* DateTime date = gift.Date ?? DateTime.UtcNow;
+        TimeSpan delay = (date - DateTime.UtcNow) - this.curUser.ReminderDuration;
+        
+        if (delay < TimeSpan.Zero)
+        {
+            delay = TimeSpan.Zero;
+        }
+
+        BackgroundJob.Schedule<INotifier>(
+            (notifier) => notifier.Notify(email, gift.Id),
+            delay); *@
+    }
+}

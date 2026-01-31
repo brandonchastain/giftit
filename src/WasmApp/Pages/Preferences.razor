@@ -1,0 +1,44 @@
+@page "/preferences"
+@attribute [Authorize]
+@* @inject UserRepository userRepo *@
+@inject ILogger<User> logger
+
+<PageTitle>User Preferences</PageTitle>
+
+<h1>User Preferences</h1>
+
+<form method="post" @onsubmit="SubmitAsync">
+    <AntiforgeryToken />
+    Reminder Duration
+    <InputText @bind-Value="ReminderDurStr" placeholder="Reminder Duration (e.g. 14:00:00:00 for 2 weeks)" />
+    <button type="submit">Submit</button>
+</form>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [SupplyParameterFromForm]
+    private string ReminderDurStr { get; set; } = string.Empty;
+
+    private User? curUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var email = await AuthenticationState.GetUsername();
+        @* curUser = await userRepo.GetUser(email!);
+        ReminderDurStr = curUser.ReminderDuration.ToString(); *@
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ReminderDurStr))
+        {
+            throw new ArgumentException("Invalid reminder time data.");   
+        }
+
+        TimeSpan reminderDur = TimeSpan.Parse(ReminderDurStr);
+        @* await userRepo.SetReminderDurAsync(curUser.Id, reminderDur); *@
+        await this.OnInitializedAsync();
+    }
+}

@@ -1,0 +1,110 @@
+@page "/people"
+@attribute [Authorize]
+@* @inject PersonRepository repo *@
+@* @inject UserRepository userRepo *@
+@inject ILogger<People> logger
+
+<PageTitle>People</PageTitle>
+
+<h1>@email's people</h1>
+
+<p>People who you plan to gift</p>
+
+@if (myPeople == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Birthday</th>
+                <th>Faves</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var person in myPeople)
+            {
+                <tr>
+                    <td>
+                        <a href="gifts/@person.Id">@person.Name</a>
+                    </td>
+                    <td>@person.Birthday</td>
+                    <td><a href="stores/@person.Id"a>Faves</a></td>
+                    <td>
+                        <button class="btn btn-link p-0" @onclick="() => DeleteAsync(person.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form method="post" @onsubmit="SubmitAsync">
+    <AntiforgeryToken />
+        <div>
+            <InputText @bind-Value="NewPersonName" placeholder="Name" />
+            <InputText @bind-Value="NewPersonBirthday" placeholder="Birthday (MM/dd/YYYY)" />
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+}
+
+@code {
+    private Person[]? myPeople;
+    private Guid userId;
+    private string? email;
+    
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [SupplyParameterFromForm]
+    private string NewPersonName { get; set; } = string.Empty;
+    
+    [SupplyParameterFromForm]
+    private string NewPersonBirthday { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string NewStoreName { get; set; } = string.Empty;
+
+    [SupplyParameterFromForm]
+    private string NewStoreUrl { get; set; } = string.Empty;
+    private async Task SubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewPersonName) ||
+            string.IsNullOrWhiteSpace(NewPersonBirthday))
+        {
+            throw new ArgumentException("Invalid person data.");   
+        }
+
+        @* await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), userId); *@
+        await this.OnInitializedAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        @* await repo.DeletePerson(id); *@
+        await this.OnInitializedAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        NewPersonName = string.Empty;
+        NewPersonBirthday = string.Empty;
+
+        email = await AuthenticationState.GetUsername();
+        if (email == null)
+        {
+            logger.LogError("Error: No one is logged in...");
+            return;
+        }
+
+        @* var user = await userRepo.GetUser(email);
+        userId = user.Id;
+        myPeople = await repo.GetMyPeople(userId); *@
+    }
+}
