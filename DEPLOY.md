@@ -7,7 +7,7 @@
 2. Run these commands to deploy the frontend:
 
 ```bash
-cd c:\dev\rssreader\rss-reader\src\WasmApp
+cd c:\dev\gifted2\gifted\src\WasmApp
 dotnet publish -c release -r win-x64 WasmApp.csproj --output bin/release/net9.0/win-x64/publish --self-contained true
 swa deploy .\bin\release\net9.0\win-x64\publish\wwwroot\ --env production
 
@@ -34,26 +34,26 @@ az login
 az account set --subscription "YOUR_SUBSCRIPTION_ID"
 
 # Create resource group
-az group create --name rss-container-rg --location westus2
+az group create --name gifted-rg --location westus2
 
 # Create Azure Container Registry (ACR) for your images
-az acr create --resource-group rss-container-rg   --name rssreaderacr   --sku Basic   --location westus2
+az acr create --resource-group gifted-rg   --name giftedacr   --sku Basic   --location westus2
 
 # Enable admin access (for easier pushing)
-az acr update --name rssreaderacr --admin-enabled true
+az acr update --name giftedacr --admin-enabled true
 ```
 
 ## Step 2: Build and Push Docker Image
 
 ```bash
 # Navigate to the src directory (parent of Server and Shared)
-cd c:\dev\rssreader\rss-reader\src
+cd c:\dev\giftit2\giftit\src
 
 # Login to ACR
-az acr login --name rssreaderacr
+az acr login --name giftedacr
 
 # Build and push the image to ACR
-az acr build --registry rssreaderacr   --image rss-reader-api:latest   --file Server/Dockerfile   .
+az acr build --registry giftedacr   --image gifted-api:latest   --file Server/Dockerfile   .
 ```
 
 ## Step 3: Deploy Infrastructure
@@ -63,32 +63,33 @@ az acr build --registry rssreaderacr   --image rss-reader-api:latest   --file Se
 cd ..\infrastructure
 
 # NOTE: The container image used below match the containerImage parameter in main.bicepparam
-# Example: param containerImage = 'rssreaderacr.azurecr.io/rss-reader-api:latest'
+# Example: param containerImage = 'giftedacr.azurecr.io/gifted-api:latest'
 # Deploy the Bicep template
-az deployment group create --resource-group rss-container-rg --template-file main.bicep --parameters main.bicepparam --parameters containerImage='rssreaderacr.azurecr.io/rss-reader-api:latest'
+az deployment group create --resource-group gifted-rg --template-file main.bicep --parameters main.bicepparam --parameters containerImage='giftedacr.azurecr.io/gifted-api:latest'
 ```
 
 ## Step 4: Configure Container App to Pull from ACR
 
 ```bash
 # Get ACR credentials
-$ACR_USERNAME = (az acr credential show --name rssreaderacr --query username -o tsv)
-$ACR_PASSWORD = (az acr credential show --name rssreaderacr --query passwords[0].value -o tsv)
+$ACR_USERNAME = (az acr credential show --name giftedacr --query username -o tsv)
+$ACR_PASSWORD = (az acr credential show --name giftedacr --query passwords[0].value -o tsv)
 
 # Update Container App with registry credentials
-az containerapp registry set   --name rss-reader-api   --resource-group rss-container-rg   --server rssreaderacr.azurecr.io   --username $ACR_USERNAME   --password $ACR_PASSWORD
+az containerapp registry set   --name gifted-api   --resource-group gifted-rg   --server giftedacr.azurecr.io   --username $ACR_USERNAME   --password $ACR_PASSWORD
+
 ```
 
 ## Step 5: Get Your API URL
 
 ```bash
 # Get the FQDN of your Container App
-az containerapp show   --name rss-reader-api   --resource-group rss-container-rg   --query properties.configuration.ingress.fqdn   -o tsv
+az containerapp show   --name gifted-api   --resource-group gifted-rg   --query properties.configuration.ingress.fqdn   -o tsv
 ```
 
-This will output something like: `rss-reader-api.kindtree-12345678.westus2.azurecontainerapps.io`
+This will output something like: `gifted-api.kindtree-12345678.westus2.azurecontainerapps.io`
 
-Your API will be available at: `https://rss-reader-api.kindtree-12345678.westus2.azurecontainerapps.io/api/feed`
+Your API will be available at: `https://gifted-api.kindtree-12345678.westus2.azurecontainerapps.io/api/feed`
 
 ## Step 6: Update Your Frontend
 
@@ -98,10 +99,10 @@ Update your WasmApp configuration to point to the new Container App URL instead 
 
 ```bash
 # View container app logs
-az containerapp logs show   --name rss-reader-api   --resource-group rss-container-rg   --follow
+az containerapp logs show   --name gifted-api   --resource-group gifted-rg   --follow
 
 # Check current replica count (should be 0 when idle)
-az containerapp replica list   --name rss-reader-api   --resource-group rss-container-rg
+az containerapp replica list   --name gifted-api   --resource-group gifted-rg
 ```
 
 ## Scale to Zero Behavior
@@ -116,18 +117,18 @@ When you update your code:
 
 ```bash
 # Rebuild and push new image
-cd c:\dev\rssreader\rss-reader\src
-az acr build --registry rssreaderacr   --image rss-reader-api:latest   --file Server/Dockerfile   .
+cd c:\dev\giftit2\giftit\src
+az acr build --registry giftedacr   --image gifted-api:latest   --file Server/Dockerfile   .
 
 # Container App automatically pulls latest image on next revision
-az containerapp update   --name rss-reader-api   --resource-group rss-container-rg   --image rssreaderacr.azurecr.io/rss-reader-api:latest
+az containerapp update   --name gifted-api   --resource-group gifted-rg   --image giftedacr.azurecr.io/gifted-api:latest
 ```
 
 ## Troubleshooting
 
 ### Check container logs
 ```bash
-az containerapp logs show --name rss-reader-api --resource-group rss-container-rg --follow
+az containerapp logs show --name gifted-api --resource-group gifted-rg --follow
 ```
 
 ### Verify storage mount
@@ -135,5 +136,5 @@ The SQLite database should persist at `/data/storage.db` inside the container, m
 
 ### Check replica status
 ```bash
-az containerapp show --name rss-reader-api --resource-group rss-container-rg --query properties.runningStatus
+az containerapp show --name gifted-api --resource-group gifted-rg --query properties.runningStatus
 ```

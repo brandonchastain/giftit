@@ -8,7 +8,7 @@
       "run": "dotnet watch run",
       "appDevserverUrl": "http://localhost:8000",
       "appName": "gifted-swa",
-      "resourceGroup": "gifted"
+      "resourceGroup": "gifted-rg"
     }
   }
 }

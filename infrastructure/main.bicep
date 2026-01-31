@@ -68,7 +68,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 
 // File Share for SQLite database
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = {
-  name: '${storageAccount.name}/default/rss-data'
+  name: '${storageAccount.name}/default/backup-data'
   properties: {
     shareQuota: 1  // 1 GB should be plenty for SQLite
   }
@@ -97,13 +97,13 @@ resource environment 'Microsoft.App/managedEnvironments@2024-03-01' = {
 
 // Storage mount for Container App Environment
 resource storage 'Microsoft.App/managedEnvironments/storages@2024-03-01' = {
-  name: 'rss-data-storage'
+  name: 'backup-data-storage'
   parent: environment
   properties: {
     azureFile: {
       accountName: storageAccount.name
       accountKey: storageAccount.listKeys().keys[0].value
-      shareName: 'rss-data'
+      shareName: 'backup-data'
       accessMode: 'ReadWrite'
     }
   }
@@ -144,7 +144,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     template: {
       containers: [
         {
-          name: 'rss-reader-api'
+          name: containerAppName
           image: containerImage
           resources: {
             cpu: json(cpuCore)
@@ -158,7 +158,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
           ]
           volumeMounts: [
             {
-              volumeName: 'rss-data-volume'
+              volumeName: 'backup-data-volume'
               mountPath: '/data'
             }
           ]
@@ -180,9 +180,9 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       }
       volumes: [
         {
-          name: 'rss-data-volume'
+          name: 'backup-data-volume'
           storageType: 'AzureFile'
-          storageName: 'rss-data-storage'
+          storageName: 'backup-data-storage'
         }
       ]
     }
