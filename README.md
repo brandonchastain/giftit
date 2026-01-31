@@ -9,9 +9,9 @@
 
 ✅ Mark gifts as purchased to stay organized
 
-🎂 Keep track of important dates and occasions
+🎂 *(In Development)* Keep track of important dates and occasions
 
-📱 Responsive design for mobile & desktop
+⏰ *(In Development)* Purchase gifts promptly using scheduled reminders
 
 # Docs
 * [ARCHITECTURE.md](ARCHITECTURE.md)
