@@ -1,17 +1,15 @@
-# RssReader | A simple browser-based RSS reader
+# Gifted | A simple gift tracking and management app
 
 ## Features
-🗞️ Subscribe to RSS and Atom feeds
+🎁 Track gift ideas for your friends and family
 
-📰 Browse recent posts in an infinite-scroll feed
+👥 Manage people and their birthdays
 
-🏷️ Categorize feeds using <b>tags</b>
+🏪 Save favorite stores and shopping links
 
-🚰 Curate your own feed with <b>tag filters</b> and <b>saved posts</b>
+✅ Mark gifts as purchased to stay organized
 
-🔍 <b>Search</b> for posts
-
-📥 <b>Import and export</b> feeds to/from other reader apps
+🎂 Keep track of important dates and occasions
 
 📱 Responsive design for mobile & desktop
 
