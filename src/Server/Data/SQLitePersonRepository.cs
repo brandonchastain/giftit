@@ -61,8 +61,8 @@ public class SQLitePersonRepository : IPersonRepository
         command.CommandText = """
             SELECT p.Id, p.Name, p.Birthday FROM People p
             JOIN UserPeople up ON up.PersonId = p.Id
-            JOIN User u ON up.UserId = u.UserId
-            WHERE u.UserId = @id
+            JOIN Users u ON up.UserId = u.Id
+            WHERE u.Id = @id
         """;
 
         command.Parameters.AddWithValue("@id", userId);
@@ -135,14 +135,8 @@ public class SQLitePersonRepository : IPersonRepository
                 var id = await reader.IsDBNullAsync(reader.GetOrdinal("Id")) ? 0 : reader.GetInt32(reader.GetOrdinal("Id"));
                 var name = await reader.IsDBNullAsync(reader.GetOrdinal("Name")) ? "" : reader.GetString(reader.GetOrdinal("Name"));
                 var birthday = await reader.IsDBNullAsync(reader.GetOrdinal("Birthday")) ? "" : reader.GetString(reader.GetOrdinal("Birthday"));
-                
-                if (DateTime.TryParse(birthday, out var parsedBirthday))
-                {
-                    yield return new Person(id, name, parsedBirthday);
-                    continue;
-                }
 
-                yield return new Person(id, name, null);
+                yield return new Person(id, name, birthday);
             }
         }
     }

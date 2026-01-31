@@ -50,9 +50,8 @@ public class SQLiteGiftRepository : IGiftRepository
         await connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT g.Id, g.Name, p.Name AS PersonName, g.Link, g.Date, g.IsPurchased
+            SELECT g.Id, g.Name, g.PersonId, g.Link, g.Date, g.IsPurchased
             FROM Gifts g
-            JOIN People p on p.Id = g.PersonId
             WHERE PersonId = @personId
         """;
         command.Parameters.AddWithValue("@personId", personId);
@@ -68,9 +67,8 @@ public class SQLiteGiftRepository : IGiftRepository
 
         var command = connection.CreateCommand();
         command.CommandText = """
-            SELECT g.Id, g.Name, p.Name AS PersonName, g.Link, g.Date, g.IsPurchased
+            SELECT g.Id, g.Name, g.PersonId, g.Link, g.Date, g.IsPurchased
             FROM Gifts g
-            JOIN People p on p.Id = g.PersonId
             WHERE g.Id = @id
         """;
 
@@ -136,12 +134,12 @@ public class SQLiteGiftRepository : IGiftRepository
 
             var id = reader.IsDBNull(reader.GetOrdinal("Id")) ? 0 : reader.GetInt32(reader.GetOrdinal("Id"));
             var name = reader.IsDBNull(reader.GetOrdinal("Name")) ? "" : reader.GetString(reader.GetOrdinal("Name"));
-            var personName = reader.IsDBNull(reader.GetOrdinal("PersonName")) ? "" : reader.GetString(reader.GetOrdinal("PersonName"));
+            var personId = reader.IsDBNull(reader.GetOrdinal("PersonId")) ? 0 : reader.GetInt32(reader.GetOrdinal("PersonId"));
             var link = reader.IsDBNull(reader.GetOrdinal("Link")) ? "" : reader.GetString(reader.GetOrdinal("Link"));
             var date = reader.IsDBNull(reader.GetOrdinal("Date")) ? "" : reader.GetString(reader.GetOrdinal("Date"));
             var isPurchased = reader.IsDBNull(reader.GetOrdinal("IsPurchased")) ? false : reader.GetBoolean(reader.GetOrdinal("IsPurchased"));
             
-            return new Gift(id, name, personName, link, date, isPurchased);
+            return new Gift(id, name, personId, link, date, isPurchased);
         }
     }
 
@@ -153,12 +151,12 @@ public class SQLiteGiftRepository : IGiftRepository
             {
                 var id = await reader.IsDBNullAsync(reader.GetOrdinal("Id")) ? 0 : reader.GetInt32(reader.GetOrdinal("Id"));
                 var name = await reader.IsDBNullAsync(reader.GetOrdinal("Name")) ? "" : reader.GetString(reader.GetOrdinal("Name"));
-                var personName = await reader.IsDBNullAsync(reader.GetOrdinal("PersonName")) ? "" : reader.GetString(reader.GetOrdinal("PersonName"));
+                var personId = await reader.IsDBNullAsync(reader.GetOrdinal("PersonId")) ? 0 : reader.GetInt32(reader.GetOrdinal("PersonId"));
                 var link = await reader.IsDBNullAsync(reader.GetOrdinal("Link")) ? "" : reader.GetString(reader.GetOrdinal("Link"));
                 var date = await reader.IsDBNullAsync(reader.GetOrdinal("Date")) ? "" : reader.GetString(reader.GetOrdinal("Date"));
                 var isPurchased = await reader.IsDBNullAsync(reader.GetOrdinal("IsPurchased")) ? false : reader.GetBoolean(reader.GetOrdinal("IsPurchased"));
                 
-                yield return new Gift(id, name, personName, link, date, isPurchased);
+                yield return new Gift(id, name, personId, link, date, isPurchased);
             }
         }
     }

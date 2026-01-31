@@ -22,7 +22,11 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, MyAuthenticationStateProvider>();
 
 // Add the authentication header handler
-builder.Services.AddTransient<AuthenticationHeaderHandler>();
+builder.Services.AddTransient<AuthenticationHeaderHandler>()
+.AddSingleton<PersonClient>()
+.AddSingleton<UserClient>()
+.AddSingleton<GiftClient>()
+.AddSingleton<StoreClient>();
 
 // Configure HttpClient with authentication handler for API calls
 builder.Services.AddHttpClient("ApiClient", client =>

@@ -1,5 +1,8 @@
 @page "/gifts/{personId}"
 @attribute [Authorize]
+@inject GiftClient repo
+@inject PersonClient personRepo
+@inject UserClient userRepo
 @* @inject GiftRepository repo
 @inject PersonRepository personRepo
 @inject UserRepository userRepo
@@ -70,15 +73,17 @@ else
 }
 
 @code {
-    private string? personName;
-    private Gift[]? gifts;
+    private string personName;
+    private Gift[] gifts;
     private User curUser;
     
     [CascadingParameter]
-    private Task<AuthenticationState>? AuthenticationState { get; set; }
+    private Task<AuthenticationState> AuthenticationState { get; set; }
 
     [Parameter]
-    public string? PersonId { get; set; }
+    public string PersonId { get; set; }
+    public int PersonIdInt => int.Parse(PersonId);
+
 
     [SupplyParameterFromForm]
     private string NewGiftName { get; set; } = string.Empty;
@@ -93,19 +98,13 @@ else
     {
         this.NewGiftName = string.Empty;
         this.Link = string.Empty;
-
-        if (PersonId == null)
-        {
-            this.logger.LogError("Error: No user is logged in...");
-            return;
-        }
-
-        @* var person = await personRepo.GetPerson(Guid.Parse(PersonId));
+        this.GiftDate = string.Empty;
+        var person = await personRepo.GetPersonAsync(PersonIdInt);
         this.personName = person?.Name;
-        var giftIdeas = await repo.GetGiftIdeasForPerson(Guid.Parse(PersonId));
+        var giftIdeas = await repo.GetGiftIdeasForPersonAsync(PersonIdInt);
         this.gifts = giftIdeas;
         string? userEmail = await AuthenticationState.GetUsername();
-        this.curUser = await userRepo.GetUser(userEmail!); *@
+        this.curUser = await userRepo.GetUserAsync(userEmail);
     }
 
     private async Task SubmitAsync()
@@ -123,20 +122,20 @@ else
             return;
         }
 
-        @* var gift = await repo.AddNewGift(NewGiftName, Guid.Parse(PersonId), Link, GiftDate); *@
+        await repo.AddNewGiftAsync(new Gift(0, NewGiftName, PersonIdInt, Link, GiftDate, false));
         @* ScheduleNotification(email, gift); *@
         await this.OnInitializedAsync();
     }
 
     private async Task DeleteAsync(int id)
     {
-        @* await repo.DeleteGift(id); *@
+        await repo.DeleteGiftAsync(id);
         await this.OnInitializedAsync();
     }
 
     private async Task MarkAsPurchasedAsync(int id)
     {
-        @* await repo.SetIsPurchased(id); *@
+        await repo.MarkAsPurchasedAsync(id);
         await this.OnInitializedAsync();
     }
 

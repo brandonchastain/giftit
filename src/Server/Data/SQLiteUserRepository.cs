@@ -8,6 +8,8 @@ public class SQLiteUserRepository : IUserRepository
 {
     private readonly string connectionString;
     private readonly ILogger<SQLiteUserRepository> logger;
+    private readonly SemaphoreSlim locker = new SemaphoreSlim(1, 1);
+
     public SQLiteUserRepository(
         string connectionString,
         ILogger<SQLiteUserRepository> logger)
@@ -51,11 +53,50 @@ public class SQLiteUserRepository : IUserRepository
         command.CommandText = """
             SELECT u.Id, u.Name, u.Email
             FROM Users u
-            WHERE u.Email = @email
+            WHERE u.Email LIKE @email
         """;
         command.Parameters.AddWithValue("@email", email);
         
-        return ReadSingleRecord(command);
+        var user = ReadSingleRecord(command);
+
+        if (user == null)
+        {
+            // auto-create the user if they don't exist
+            await locker.WaitAsync();
+            try
+            {
+                // Double-check after acquiring lock
+                command = connection.CreateCommand();
+                command.CommandText = """
+                    SELECT u.Id, u.Name, u.Email
+                    FROM Users u
+                    WHERE u.Email LIKE @email
+                """;
+                command.Parameters.AddWithValue("@email", email);
+                user = ReadSingleRecord(command);
+
+                if (user == null)
+                {
+                    await this.AddNewUser(email, "New User");
+                    
+                    // Double-check after acquiring lock
+                    command = connection.CreateCommand();
+                    command.CommandText = """
+                        SELECT u.Id, u.Name, u.Email
+                        FROM Users u
+                        WHERE u.Email LIKE @email
+                    """;
+                    command.Parameters.AddWithValue("@email", email);
+                    user = ReadSingleRecord(command);
+                }
+            }
+            finally
+            {
+                locker.Release();
+            }
+        }
+
+        return user;
     }
 
     public async Task AddNewUser(string email, string name)

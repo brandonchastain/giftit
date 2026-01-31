@@ -1,7 +1,7 @@
 @page "/people"
 @attribute [Authorize]
-@* @inject PersonRepository repo *@
-@* @inject UserRepository userRepo *@
+@inject PersonClient repo
+@inject UserClient userRepo
 @inject ILogger<People> logger
 
 <PageTitle>People</PageTitle>
@@ -56,7 +56,7 @@ else
 
 @code {
     private Person[]? myPeople;
-    private Guid userId;
+    private int userId;
     private string? email;
     
     [CascadingParameter]
@@ -81,20 +81,31 @@ else
             throw new ArgumentException("Invalid person data.");   
         }
 
-        @* await repo.AddNewPerson(NewPersonName, DateTime.Parse(NewPersonBirthday), userId); *@
-        await this.OnInitializedAsync();
+        await repo.AddNewPersonAsync(new Person(-1, NewPersonName, NewPersonBirthday));
+        await LoadDataAsync();
     }
 
     private async Task DeleteAsync(int id)
     {
-        @* await repo.DeletePerson(id); *@
-        await this.OnInitializedAsync();
+        await repo.DeletePersonAsync(id);
+        await LoadDataAsync();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
     {
         NewPersonName = string.Empty;
         NewPersonBirthday = string.Empty;
+
+        if (AuthenticationState == null)
+        {
+            logger.LogError("Error: AuthenticationState is null");
+            return;
+        }
 
         email = await AuthenticationState.GetUsername();
         if (email == null)
@@ -103,8 +114,9 @@ else
             return;
         }
 
-        @* var user = await userRepo.GetUser(email);
+        var user = await userRepo.GetUserAsync(email);
         userId = user.Id;
-        myPeople = await repo.GetMyPeople(userId); *@
+        myPeople = await repo.GetMyPeopleAsync(userId);
+        StateHasChanged();
     }
 }

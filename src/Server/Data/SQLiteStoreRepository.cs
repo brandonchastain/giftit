@@ -38,7 +38,7 @@ public class SQLiteStoreRepository : IStoreRepository
                     PersonId INTEGER NOT NULL,
                     Name TEXT NOT NULL,
                     Url TEXT,
-                    FOREIGN KEY (PersonId) REFERENCES People(PersonId) ON DELETE CASCADE
+                    FOREIGN KEY (PersonId) REFERENCES People(Id) ON DELETE CASCADE
                 )";
             command.ExecuteNonQuery();
         }

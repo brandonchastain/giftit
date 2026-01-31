@@ -1,5 +1,9 @@
 @page "/stores/{personId}"
+@using System.Security.Cryptography.X509Certificates
 @attribute [Authorize]
+@inject StoreClient repo
+@inject PersonClient personRepo
+
 @* @inject StoreRepository repo
 @inject PersonRepository personRepo *@
 
@@ -55,10 +59,11 @@ else
     private Task<AuthenticationState>? AuthenticationState { get; set; }
 
     [Parameter]
-    public string? PersonId { get; set; }
+    public string PersonId { get; set; }
+    public int PersonIdInt => int.Parse(PersonId);
 
-    private string? personName;
-    private Store[]? stores;
+    private string personName;
+    private Store[] stores;
 
     [SupplyParameterFromForm]
     private string Name { get; set; } = string.Empty;
@@ -76,9 +81,9 @@ else
             throw new Exception("Invalid person data.");
         }
 
-        @* var person = await personRepo.GetPerson(Guid.Parse(PersonId));
+        var person = await personRepo.GetPersonAsync(PersonIdInt);
         this.personName = person?.Name;
-        this.stores = await repo.GetStoresForPerson(Guid.Parse(PersonId)); *@
+        this.stores = await repo.GetStoresForPersonAsync(PersonIdInt);
     }
 
     private async Task SubmitAsync()
@@ -88,13 +93,13 @@ else
             throw new Exception("Invalid person data.");   
         }
 
-        @* await repo.AddStoreAsync(Guid.Parse(PersonId), Name, Link); *@
+        await repo.AddStoreAsync(new Store(-1, PersonIdInt, Name, Link));
         await this.OnInitializedAsync();
     }
 
     private async Task DeleteAsync(int id)
     {
-        @* await repo.DeleteStoreAsync(id); *@
+        await repo.DeleteStoreAsync(id);
         await this.OnInitializedAsync();
     }
 }
